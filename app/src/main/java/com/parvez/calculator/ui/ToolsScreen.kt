@@ -27,6 +27,14 @@ fun ToolsScreen(onBack: () -> Unit) {
     var toUnit by remember { mutableStateOf(LengthUnit.FOOT) }
     var baseInput by remember { mutableStateOf("255") }
     var constantQuery by remember { mutableStateOf("") }
+    var m11 by remember { mutableStateOf("1") }
+    var m12 by remember { mutableStateOf("2") }
+    var m21 by remember { mutableStateOf("3") }
+    var m22 by remember { mutableStateOf("4") }
+    var z1r by remember { mutableStateOf("1") }
+    var z1i by remember { mutableStateOf("2") }
+    var z2r by remember { mutableStateOf("3") }
+    var z2i by remember { mutableStateOf("4") }
 
     Scaffold(topBar = {
         TopAppBar(title = { Text("Math Tools") }, navigationIcon = {
@@ -44,7 +52,7 @@ fun ToolsScreen(onBack: () -> Unit) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Geometry", "Units", "Programmer", "Constants").forEach {
+                listOf("Geometry", "Units", "Programmer", "Constants", "Matrix", "Complex").forEach {
                     FilterChip(selected = section == it, onClick = { section = it; result = "" }, label = { Text(it) })
                 }
             }
@@ -119,6 +127,51 @@ fun ToolsScreen(onBack: () -> Unit) {
                         result = runCatching { UnitConverter.length(number.toDouble(), fromUnit, toUnit).toString() }
                             .getOrElse { "Error: ${it.message}" }
                     }) { Text("Convert length") }
+                }
+                "Matrix" -> {
+                    Text("2 × 2 matrix tools", style = MaterialTheme.typography.titleLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(m11, { m11 = it }, label = { Text("a₁₁") }, modifier = Modifier.weight(1f))
+                        OutlinedTextField(m12, { m12 = it }, label = { Text("a₁₂") }, modifier = Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(m21, { m21 = it }, label = { Text("a₂₁") }, modifier = Modifier.weight(1f))
+                        OutlinedTextField(m22, { m22 = it }, label = { Text("a₂₂") }, modifier = Modifier.weight(1f))
+                    }
+                    Button(onClick = {
+                        result = runCatching {
+                            val matrix = arrayOf(
+                                doubleArrayOf(m11.toDouble(), m12.toDouble()),
+                                doubleArrayOf(m21.toDouble(), m22.toDouble())
+                            )
+                            val det = MatrixEngine.determinant(matrix)
+                            val inverse = runCatching { MatrixEngine.inverse(matrix) }.getOrNull()
+                            "Determinant: $det\nTranspose: ${MatrixEngine.transpose(matrix).contentDeepToString()}\nInverse: ${inverse?.contentDeepToString() ?: "Matrix is singular"}"
+                        }.getOrElse { "Error: ${it.message}" }
+                    }) { Text("Calculate matrix") }
+                }
+                "Complex" -> {
+                    Text("Complex number arithmetic", style = MaterialTheme.typography.titleLarge)
+                    Text("z₁ = a + bi")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(z1r, { z1r = it }, label = { Text("a") }, modifier = Modifier.weight(1f))
+                        OutlinedTextField(z1i, { z1i = it }, label = { Text("b") }, modifier = Modifier.weight(1f))
+                    }
+                    Text("z₂ = c + di")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(z2r, { z2r = it }, label = { Text("c") }, modifier = Modifier.weight(1f))
+                        OutlinedTextField(z2i, { z2i = it }, label = { Text("d") }, modifier = Modifier.weight(1f))
+                    }
+                    Button(onClick = {
+                        result = runCatching {
+                            val z1 = ComplexNumber(z1r.toDouble(), z1i.toDouble())
+                            val z2 = ComplexNumber(z2r.toDouble(), z2i.toDouble())
+                            val product = z1 * z2
+                            val sum = z1 + z2
+                            val quotient = runCatching { z1 / z2 }.getOrNull()
+                            "Sum: ${sum.real} + ${sum.imaginary}i\nProduct: ${product.real} + ${product.imaginary}i\n|z₁|: ${z1.magnitude()}\narg(z₁): ${z1.argumentRadians()} rad\nQuotient: ${quotient?.let { "${it.real} + ${it.imaginary}i" } ?: "undefined"}"
+                        }.getOrElse { "Error: ${it.message}" }
+                    }) { Text("Calculate complex values") }
                 }
                 "Constants" -> {
                     Text("Scientific constants", style = MaterialTheme.typography.titleLarge)
