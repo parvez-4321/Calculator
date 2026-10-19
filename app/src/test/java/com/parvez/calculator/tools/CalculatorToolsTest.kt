@@ -37,6 +37,17 @@ class CalculatorToolsTest {
         assertTrue(ProgrammerCalculator.and(6, 3) == 2L)
     }
 
+    @Test fun dateTimeCalculations() {
+        assertEquals(30.0, DateTimeCalculator.daysBetween("2026-01-01", "2026-01-31").toDouble(), 1e-10)
+        assertEquals("2026-01-31", DateTimeCalculator.addDays("2026-01-01", 30))
+        assertEquals("8h 30m 0s", DateTimeCalculator.formatDuration(DateTimeCalculator.durationBetween("09:00", "17:30")))
+    }
+
+    @Test fun constantsAreSearchable() {
+        assertTrue(ScientificConstants.search("speed of light").any { it.symbol == "c" })
+        assertTrue(ScientificConstants.all.first { it.symbol == "c" }.exact)
+    }
+
     @Test fun probabilityAndRegression() {
         assertEquals(0.5, ProbabilityEngine.binomialPmf(2, 1, 0.5), 1e-10)
         assertEquals(0.5, ProbabilityEngine.uniformCdf(5.0, 0.0, 10.0), 1e-10)
