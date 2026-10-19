@@ -56,7 +56,14 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
         when (key) {
             "AC" -> { expression = ""; result = "0" }
             "MC" -> memoryValue = 0.0
-            "MR" -> expression += memoryValue.toString()
+            "MR" -> {
+                val recalled = memoryValue.toString()
+                expression = when {
+                    expression.isBlank() -> recalled
+                    expression.last().isDigit() || expression.last() in listOf(')', '%', '!') -> "$expression*($recalled)"
+                    else -> "$expression($recalled)"
+                }
+            }
             "MS" -> {
                 memoryValue = if (expression.isNotBlank()) runCatching { engine.evaluate(expression, lastAnswer) }.getOrElse { lastAnswer } else lastAnswer
             }
@@ -75,12 +82,13 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                         val sourceExpression = expression
                         val value = engine.evaluate(sourceExpression, lastAnswer)
                         lastAnswer = value
-                        result = formatResult(value)
+                        val formattedResult = formatResult(value)
+                        result = formattedResult
                         scope.launch {
                             database.historyDao().insert(
                                 CalculationHistoryEntity(
                                     expression = sourceExpression,
-                                    result = result,
+                                    result = formattedResult,
                                     rawResult = value,
                                     angleMode = if (radians) "RADIANS" else "DEGREES"
                                 )
