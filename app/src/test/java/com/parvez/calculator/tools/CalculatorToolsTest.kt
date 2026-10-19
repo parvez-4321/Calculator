@@ -38,7 +38,7 @@ class CalculatorToolsTest {
     }
 
     @Test fun probabilityAndRegression() {
-        assertEquals(0.25, ProbabilityEngine.binomialPmf(2, 1, 0.5), 1e-10)
+        assertEquals(0.5, ProbabilityEngine.binomialPmf(2, 1, 0.5), 1e-10)
         assertEquals(0.5, ProbabilityEngine.uniformCdf(5.0, 0.0, 10.0), 1e-10)
         val regression = ProbabilityEngine.linearRegression(listOf(1.0, 2.0, 3.0), listOf(3.0, 5.0, 7.0))
         assertEquals(2.0, regression.slope, 1e-10)
