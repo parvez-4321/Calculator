@@ -18,7 +18,7 @@ class ExpressionEngineTest {
     }
     @Test fun inverseHyperbolicHandlesNegativeValues() {
         assertEquals(-1.4436354751788103, ExpressionEngine().evaluate("asinh(-2)"), 1e-10)
-        assertEquals(3.0, ExpressionEngine().evaluate("root(-27,3)"), 1e-10)
+        assertEquals(-3.0, ExpressionEngine().evaluate("root(-27,3)"), 1e-10)
     }
     @Test(expected = ArithmeticException::class) fun rejectsNonRealFractionalRootOfNegativeValue() {
         ExpressionEngine().evaluate("root(-8,2.5)")
