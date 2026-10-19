@@ -15,7 +15,7 @@ object DateTimeCalculator {
     fun daysBetween(startIsoDate: String, endIsoDate: String): Long =
         ChronoUnit.DAYS.between(parseDate(startIsoDate), parseDate(endIsoDate))
 
-    fun isLeapYear(year: Int): Boolean = java.time.Year.isLeap(year)
+    fun isLeapYear(year: Int): Boolean = java.time.Year.isLeap(year.toLong())
 
     fun dayOfWeek(isoDate: String): String = parseDate(isoDate).dayOfWeek.name
     fun dayOfYear(isoDate: String): Int = parseDate(isoDate).dayOfYear
