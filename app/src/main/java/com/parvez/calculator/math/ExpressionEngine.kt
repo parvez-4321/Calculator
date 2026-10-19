@@ -162,7 +162,10 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "atanh" -> 0.5 * ln((1.0 + one()) / (1.0 - one()))
                 "acoth" -> 0.5 * ln((one() + 1.0) / (one() - 1.0))
                 "asech" -> ln(1.0 / one() + sqrt(1.0 / (one() * one()) - 1.0))
-                "acsch" -> ln(1.0 / one() + sqrt(1.0 / (one() * one()) + 1.0))
+                "acsch" -> {
+                    val reciprocal = 1.0 / one()
+                    sign(reciprocal) * ln(abs(reciprocal) + sqrt(reciprocal * reciprocal + 1.0))
+                }
                 "abs" -> abs(one())
                 "sqrt" -> sqrt(one())
                 "cbrt" -> Math.cbrt(one())
