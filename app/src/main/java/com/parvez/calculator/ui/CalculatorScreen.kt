@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
@@ -31,7 +32,7 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalculatorScreen() {
+fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
     var expression by rememberSaveable { mutableStateOf("") }
     var result by rememberSaveable { mutableStateOf("0") }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
@@ -106,6 +107,9 @@ fun CalculatorScreen() {
                     }
                 },
                 actions = {
+                    IconButton(onClick = onOpenTools) {
+                        Icon(Icons.Default.Build, contentDescription = "Open math tools")
+                    }
                     IconButton(onClick = { showHistory = !showHistory }) {
                         Icon(Icons.Default.History, contentDescription = "Calculation history")
                     }
