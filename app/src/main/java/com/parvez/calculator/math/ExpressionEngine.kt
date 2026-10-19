@@ -167,7 +167,10 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "coth" -> 1.0 / tanh(one())
                 "sech" -> 1.0 / cosh(one())
                 "csch" -> 1.0 / sinh(one())
-                "asinh" -> ln(one() + sqrt(one() * one() + 1.0))
+                "asinh" -> {
+                    val value = one()
+                    sign(value) * ln(abs(value) + sqrt(value * value + 1.0))
+                }
                 "acosh" -> ln(one() + sqrt(one() * one() - 1.0))
                 "atanh" -> 0.5 * ln((1.0 + one()) / (1.0 - one()))
                 "acoth" -> 0.5 * ln((one() + 1.0) / (one() - 1.0))
@@ -202,7 +205,7 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "max" -> { if (a.size != 2) throw IllegalArgumentException("max requires two arguments"); max(a[0], a[1]) }
                 "mod" -> { if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("mod requires two arguments and a non-zero divisor"); a[0] % a[1] }
                 "gcd" -> {
-                    if (a.size != 2 || a.any { it % 1.0 != 0.0 || abs(it) > Long.MAX_VALUE.toDouble() })
+                    if (a.size != 2 || a.any { it % 1.0 != 0.0 || abs(it) >= Long.MAX_VALUE.toDouble() })
                         throw IllegalArgumentException("gcd requires two integers")
                     var left = abs(a[0].toLong()); var right = abs(a[1].toLong())
                     while (right != 0L) { val remainder = left % right; left = right; right = remainder }
@@ -215,7 +218,7 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                     if (left == 0L || right == 0L) 0.0 else {
                         var x1 = left; var y1 = right
                         while (y1 != 0L) { val remainder = x1 % y1; x1 = y1; y1 = remainder }
-                        (left / x1 * right).toDouble()
+                        if (left / x1 > Long.MAX_VALUE / right) throw ArithmeticException("lcm result overflows a 64-bit integer") else (left / x1 * right).toDouble()
                     }
                 }
                 "perm", "npr", "comb", "ncr" -> {
@@ -233,8 +236,11 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "root" -> {
                     if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("root requires a value and non-zero degree")
                     val degree = a[1]
-                    if (x < 0.0 && degree % 2.0 == 0.0) throw ArithmeticException("Even root of a negative number is not real")
-                    if (x < 0.0) -((-x).pow(1.0 / degree)) else x.pow(1.0 / degree)
+                    if (x < 0.0) {
+                        if (degree % 1.0 != 0.0 || abs(degree) % 2.0 != 1.0)
+                            throw ArithmeticException("A negative value requires an odd integer root degree")
+                        -((-x).pow(1.0 / degree))
+                    } else x.pow(1.0 / degree)
                 }
                 "atan2" -> { if (a.size != 2) throw IllegalArgumentException("atan2 requires two arguments"); outAngle(atan2(a[0], a[1])) }
                 else -> throw IllegalArgumentException("Unsupported function: $name")
