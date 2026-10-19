@@ -25,6 +25,7 @@ fun ToolsScreen(onBack: () -> Unit) {
     var fromUnit by remember { mutableStateOf(LengthUnit.METER) }
     var toUnit by remember { mutableStateOf(LengthUnit.FOOT) }
     var baseInput by remember { mutableStateOf("255") }
+    var constantQuery by remember { mutableStateOf("") }
 
     Scaffold(topBar = {
         TopAppBar(title = { Text("Math Tools") }, navigationIcon = {
@@ -42,7 +43,7 @@ fun ToolsScreen(onBack: () -> Unit) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Geometry", "Units", "Programmer").forEach {
+                listOf("Geometry", "Units", "Programmer", "Constants").forEach {
                     FilterChip(selected = section == it, onClick = { section = it; result = "" }, label = { Text(it) })
                 }
             }
@@ -117,6 +118,21 @@ fun ToolsScreen(onBack: () -> Unit) {
                         result = runCatching { UnitConverter.length(number.toDouble(), fromUnit, toUnit).toString() }
                             .getOrElse { "Error: ${it.message}" }
                     }) { Text("Convert length") }
+                }
+                "Constants" -> {
+                    Text("Scientific constants", style = MaterialTheme.typography.titleLarge)
+                    OutlinedTextField(constantQuery, { constantQuery = it }, label = { Text("Search name, symbol or unit") }, modifier = Modifier.fillMaxWidth())
+                    ScientificConstants.search(constantQuery).forEach { constant ->
+                        Card(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("${constant.name} (${constant.symbol})", style = MaterialTheme.typography.titleMedium)
+                                Text("${constant.value} ${constant.unit}", style = MaterialTheme.typography.bodyLarge)
+                                Text(constant.description, style = MaterialTheme.typography.bodySmall)
+                                Text(if (constant.exact) "Exact / defined value" else "Approximate: ${constant.source}",
+                                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
                 }
                 "Programmer" -> {
                     Text("Number base converter", style = MaterialTheme.typography.titleLarge)
