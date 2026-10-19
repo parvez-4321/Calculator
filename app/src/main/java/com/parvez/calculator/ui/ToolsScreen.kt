@@ -35,6 +35,11 @@ fun ToolsScreen(onBack: () -> Unit) {
     var z1i by remember { mutableStateOf("2") }
     var z2r by remember { mutableStateOf("3") }
     var z2i by remember { mutableStateOf("4") }
+    var startDate by remember { mutableStateOf("2026-01-01") }
+    var endDate by remember { mutableStateOf("2026-12-31") }
+    var daysToAdd by remember { mutableStateOf("30") }
+    var startTime by remember { mutableStateOf("09:00") }
+    var endTime by remember { mutableStateOf("17:30") }
 
     Scaffold(topBar = {
         TopAppBar(title = { Text("Math Tools") }, navigationIcon = {
@@ -52,7 +57,7 @@ fun ToolsScreen(onBack: () -> Unit) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Geometry", "Units", "Programmer", "Constants", "Matrix", "Complex").forEach {
+                listOf("Geometry", "Units", "Programmer", "Constants", "Matrix", "Complex", "Date/Time").forEach {
                     FilterChip(selected = section == it, onClick = { section = it; result = "" }, label = { Text(it) })
                 }
             }
@@ -127,6 +132,26 @@ fun ToolsScreen(onBack: () -> Unit) {
                         result = runCatching { UnitConverter.length(number.toDouble(), fromUnit, toUnit).toString() }
                             .getOrElse { "Error: ${it.message}" }
                     }) { Text("Convert length") }
+                }
+                "Date/Time" -> {
+                    Text("Date calculator", style = MaterialTheme.typography.titleLarge)
+                    OutlinedTextField(startDate, { startDate = it }, label = { Text("Start date (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(endDate, { endDate = it }, label = { Text("End date (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(daysToAdd, { daysToAdd = it }, label = { Text("Days to add / subtract") }, modifier = Modifier.fillMaxWidth())
+                    Button(onClick = {
+                        result = runCatching {
+                            val start = DateTimeCalculator.parseDate(startDate)
+                            "Days between: ${DateTimeCalculator.daysBetween(startDate, endDate)}\nDate after ${daysToAdd} days: ${DateTimeCalculator.addDays(startDate, daysToAdd.toLong())}\nStart day: ${DateTimeCalculator.dayOfWeek(startDate)}\nDay of year: ${DateTimeCalculator.dayOfYear(startDate)}\nLeap year: ${DateTimeCalculator.isLeapYear(start.year)}"
+                        }.getOrElse { "Error: ${it.message}" }
+                    }) { Text("Calculate dates") }
+                    HorizontalDivider()
+                    Text("Time duration", style = MaterialTheme.typography.titleMedium)
+                    OutlinedTextField(startTime, { startTime = it }, label = { Text("Start time (HH:MM)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(endTime, { endTime = it }, label = { Text("End time (HH:MM)") }, modifier = Modifier.fillMaxWidth())
+                    Button(onClick = {
+                        result = runCatching { DateTimeCalculator.formatDuration(DateTimeCalculator.durationBetween(startTime, endTime)) }
+                            .getOrElse { "Error: ${it.message}" }
+                    }) { Text("Calculate duration") }
                 }
                 "Matrix" -> {
                     Text("2 × 2 matrix tools", style = MaterialTheme.typography.titleLarge)
