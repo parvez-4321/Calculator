@@ -14,12 +14,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.parvez.calculator.data.CalculationHistoryEntity
+import com.parvez.calculator.data.CalculatorDatabase
 import com.parvez.calculator.math.ExpressionEngine
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -35,7 +39,11 @@ fun CalculatorScreen() {
     var radians by rememberSaveable { mutableStateOf(false) }
     var lastAnswer by rememberSaveable { mutableStateOf(0.0) }
     var showHistory by rememberSaveable { mutableStateOf(false) }
-    val history = remember { mutableStateListOf<Pair<String, String>>() }
+
+    val context = LocalContext.current
+    val database = remember { CalculatorDatabase.getInstance(context) }
+    val history by database.historyDao().observeAll().collectAsState(initial = emptyList())
+    val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
     val engine = remember(radians) {
         ExpressionEngine(if (radians) ExpressionEngine.AngleMode.RADIANS else ExpressionEngine.AngleMode.DEGREES)
@@ -49,11 +57,20 @@ fun CalculatorScreen() {
             "=" -> {
                 if (expression.isNotBlank()) {
                     try {
-                        val value = engine.evaluate(expression, lastAnswer)
+                        val sourceExpression = expression
+                        val value = engine.evaluate(sourceExpression, lastAnswer)
                         lastAnswer = value
                         result = formatResult(value)
-                        history.add(0, expression to result)
-                        if (history.size > 100) history.removeAt(history.lastIndex)
+                        scope.launch {
+                            database.historyDao().insert(
+                                CalculationHistoryEntity(
+                                    expression = sourceExpression,
+                                    result = result,
+                                    rawResult = value,
+                                    angleMode = if (radians) "RADIANS" else "DEGREES"
+                                )
+                            )
+                        }
                         expression = ""
                     } catch (e: Exception) {
                         error = e.message ?: "Invalid expression"
@@ -136,16 +153,19 @@ fun CalculatorScreen() {
                 Card(modifier = Modifier.fillMaxWidth().weight(0.35f)) {
                     Column(Modifier.padding(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Recent calculations", style = MaterialTheme.typography.titleMedium)
+                            Text("Calculation history", style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.weight(1f))
-                            TextButton(onClick = { history.clear() }) { Text("Clear") }
+                            TextButton(onClick = { scope.launch { database.historyDao().clearAll() } }) { Text("Clear all") }
                         }
                         LazyColumn {
-                            items(history) { item ->
-                                TextButton(onClick = { expression = item.first; showHistory = false }, modifier = Modifier.fillMaxWidth()) {
+                            items(history, key = { it.id }) { item ->
+                                TextButton(
+                                    onClick = { expression = item.expression; result = item.result; showHistory = false },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
                                     Column(Modifier.fillMaxWidth()) {
-                                        Text(item.first, maxLines = 1)
-                                        Text(item.second, color = MaterialTheme.colorScheme.primary)
+                                        Text(item.expression, maxLines = 1)
+                                        Text(item.result, color = MaterialTheme.colorScheme.primary)
                                     }
                                 }
                             }
