@@ -7,7 +7,7 @@ Legend: [x] implementation exists in source; [ ] incomplete, not fully integrate
 - [x] Jetpack Compose + Material 3
 - [x] System light/dark theme and Android 12+ dynamic colors
 - [x] Standard/scientific keypad
-- [x] Basic Math Tools screen with statistics, quadratic equation, simple interest, circle, length conversion and number base conversion
+- [x] Math Tools screen with statistics, quadratic equation, simple interest, circle, length conversion, number base conversion, 2×2 matrix, complex arithmetic, date/time and constants reference
 - [ ] Complete tablet/foldable/landscape layouts
 - [ ] Full TalkBack/accessibility audit
 - [ ] Full settings and persisted customization UI
@@ -40,19 +40,26 @@ Legend: [x] implementation exists in source; [ ] incomplete, not fully integrate
 - [x] Linear and quadratic equation helpers
 - [x] Bisection root solver
 - [x] Basic simple/compound interest and loan-payment formulas
+- [x] Probability distribution functions and linear regression core
+- [x] Date/time calculations
+- [x] Searchable scientific constants data
 - [x] Length/mass/temperature conversion core
 - [x] Programmer base conversion and bitwise core
 - [x] Basic geometry calculation core
 - [x] Complex arithmetic, magnitude, argument, exp and principal log
 - [ ] Full statistics distributions, weighted statistics, regression and CSV import
-- [ ] Equation solver UI, systems of equations and polynomial solver
-- [ ] Matrix UI, decomposition and eigenvalue operations
-- [ ] Complex-number UI and complete complex function support
+- [x] Basic quadratic equation UI
+- [ ] Systems of equations and general polynomial solver
+- [x] Basic 2×2 matrix UI (determinant, transpose and inverse)
+- [ ] General matrix dimensions, decomposition and eigenvalue operations
+- [x] Basic complex arithmetic UI
+- [ ] Complete complex function support
 - [ ] Numerical differentiation/integration and optimization
 - [ ] Full programmer UI and bit-width/signedness controls
 - [ ] Complete unit categories and conversion definitions
 - [ ] Complete financial, amortization, tax and margin tools
-- [ ] Date/time calculator UI
+- [x] Basic date/time calculator UI
+- [ ] Date/time pickers and timezone-aware advanced operations
 - [ ] Full geometry tools
 - [ ] Scientific constants library with verified sources and UI
 
