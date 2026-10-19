@@ -142,18 +142,42 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "sin" -> sin(angle(one()))
                 "cos" -> cos(angle(one()))
                 "tan" -> tan(angle(one()))
+                "cot" -> 1.0 / tan(angle(one()))
+                "sec" -> 1.0 / cos(angle(one()))
+                "csc" -> 1.0 / sin(angle(one()))
                 "asin", "arcsin" -> outAngle(asin(one()))
                 "acos", "arccos" -> outAngle(acos(one()))
                 "atan", "arctan" -> outAngle(atan(one()))
+                "acot" -> outAngle(atan2(1.0, one()))
+                "asec" -> outAngle(acos(1.0 / one()))
+                "acsc" -> outAngle(asin(1.0 / one()))
                 "sinh" -> sinh(one())
                 "cosh" -> cosh(one())
                 "tanh" -> tanh(one())
+                "coth" -> 1.0 / tanh(one())
+                "sech" -> 1.0 / cosh(one())
+                "csch" -> 1.0 / sinh(one())
                 "asinh" -> ln(one() + sqrt(one() * one() + 1.0))
+                "acosh" -> ln(one() + sqrt(one() * one() - 1.0))
+                "atanh" -> 0.5 * ln((1.0 + one()) / (1.0 - one()))
+                "acoth" -> 0.5 * ln((one() + 1.0) / (one() - 1.0))
+                "asech" -> ln(1.0 / one() + sqrt(1.0 / (one() * one()) - 1.0))
+                "acsch" -> ln(1.0 / one() + sqrt(1.0 / (one() * one()) + 1.0))
                 "abs" -> abs(one())
                 "sqrt" -> sqrt(one())
                 "cbrt" -> Math.cbrt(one())
                 "ln" -> ln(one())
-                "log", "log10" -> log10(one())
+                "log10" -> log10(one())
+                "log" -> if (a.size == 1) log10(one()) else {
+                    if (a.size != 2 || a[0] <= 0.0 || a[1] <= 0.0 || a[1] == 1.0)
+                        throw IllegalArgumentException("log requires a positive value and a positive base other than 1")
+                    ln(a[0]) / ln(a[1])
+                }
+                "logbase" -> {
+                    if (a.size != 2 || a[0] <= 0.0 || a[1] <= 0.0 || a[1] == 1.0)
+                        throw IllegalArgumentException("logbase requires a positive value and a positive base other than 1")
+                    ln(a[0]) / ln(a[1])
+                }
                 "log2" -> ln(one()) / ln(2.0)
                 "exp" -> exp(one())
                 "floor" -> floor(one())
@@ -164,6 +188,34 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "min" -> { if (a.size != 2) throw IllegalArgumentException("min requires two arguments"); min(a[0], a[1]) }
                 "max" -> { if (a.size != 2) throw IllegalArgumentException("max requires two arguments"); max(a[0], a[1]) }
                 "mod" -> { if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("mod requires two arguments and a non-zero divisor"); a[0] % a[1] }
+                "gcd" -> {
+                    if (a.size != 2 || a.any { it % 1.0 != 0.0 || abs(it) > Long.MAX_VALUE.toDouble() })
+                        throw IllegalArgumentException("gcd requires two integers")
+                    var left = abs(a[0].toLong()); var right = abs(a[1].toLong())
+                    while (right != 0L) { val remainder = left % right; left = right; right = remainder }
+                    left.toDouble()
+                }
+                "lcm" -> {
+                    if (a.size != 2 || a.any { it % 1.0 != 0.0 || abs(it) > Long.MAX_VALUE.toDouble() })
+                        throw IllegalArgumentException("lcm requires two integers")
+                    val left = abs(a[0].toLong()); val right = abs(a[1].toLong())
+                    if (left == 0L || right == 0L) 0.0 else {
+                        var x1 = left; var y1 = right
+                        while (y1 != 0L) { val remainder = x1 % y1; x1 = y1; y1 = remainder }
+                        (left / x1 * right).toDouble()
+                    }
+                }
+                "perm", "npr", "comb", "ncr" -> {
+                    if (a.size != 2 || a.any { it < 0.0 || it % 1.0 != 0.0 || it > 170.0 })
+                        throw IllegalArgumentException("$name requires non-negative integers no greater than 170")
+                    val n = a[0].toInt(); val r = a[1].toInt()
+                    if (r > n) 0.0 else {
+                        val k = if (name == "comb" || name == "ncr") minOf(r, n - r) else r
+                        var resultValue = 1.0
+                        for (i in 0 until k) resultValue *= (n - i).toDouble() / (if (name == "comb" || name == "ncr") (i + 1).toDouble() else 1.0)
+                        resultValue
+                    }
+                }
                 "pow" -> { if (a.size != 2) throw IllegalArgumentException("pow requires two arguments"); a[0].pow(a[1]) }
                 "root" -> {
                     if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("root requires a value and non-zero degree")
