@@ -39,13 +39,13 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                         val start = position
                         val right = parseMultiplyDivide()
                         val token = input.substring(start, position).trim()
-                        value + if (token.matches(Regex("[+-]?(?:[0-9]+(?:\\\\.[0-9]*)?|\\\\.[0-9]+)%"))) value * right else right
+                        value + if (token.endsWith("%") && token.dropLast(1).trim().toDoubleOrNull() != null) value * right else right
                     }
                     consume('-') -> {
                         val start = position
                         val right = parseMultiplyDivide()
                         val token = input.substring(start, position).trim()
-                        value - if (token.matches(Regex("[+-]?(?:[0-9]+(?:\\\\.[0-9]*)?|\\\\.[0-9]+)%"))) value * right else right
+                        value - if (token.endsWith("%") && token.dropLast(1).trim().toDoubleOrNull() != null) value * right else right
                     }
                     else -> return value
                 }
