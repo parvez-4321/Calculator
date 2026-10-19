@@ -39,6 +39,7 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
     var scientific by rememberSaveable { mutableStateOf(true) }
     var radians by rememberSaveable { mutableStateOf(false) }
     var lastAnswer by rememberSaveable { mutableStateOf(0.0) }
+    var memoryValue by rememberSaveable { mutableStateOf(0.0) }
     var showHistory by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -54,6 +55,19 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
         error = null
         when (key) {
             "AC" -> { expression = ""; result = "0" }
+            "MC" -> memoryValue = 0.0
+            "MR" -> expression += memoryValue.toString()
+            "MS" -> {
+                memoryValue = if (expression.isNotBlank()) runCatching { engine.evaluate(expression, lastAnswer) }.getOrElse { lastAnswer } else lastAnswer
+            }
+            "M+" -> {
+                val value = if (expression.isNotBlank()) runCatching { engine.evaluate(expression, lastAnswer) }.getOrElse { lastAnswer } else lastAnswer
+                memoryValue += value
+            }
+            "M-" -> {
+                val value = if (expression.isNotBlank()) runCatching { engine.evaluate(expression, lastAnswer) }.getOrElse { lastAnswer } else lastAnswer
+                memoryValue -= value
+            }
             "DEL" -> if (expression.isNotEmpty()) expression = expression.dropLast(1)
             "=" -> {
                 if (expression.isNotBlank()) {
@@ -144,6 +158,7 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.End
                 ) {
+                    if (memoryValue != 0.0) Text("M", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                     Text(expression.ifBlank { " " }, style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End, maxLines = 3)
                     Spacer(Modifier.height(12.dp))
@@ -191,6 +206,7 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                 listOf("sqrt", "cbrt", "root", "abs", "floor", "ceil"),
                 listOf("round", "trunc", "sign", "gcd", "lcm", "ncr"),
                 listOf("npr", "min", "max", "atan2", "(", ")"),
+                listOf("MC", "MR", "M+", "M-", "MS", "Ans"),
                 listOf("7", "8", "9", "÷", "x²", "xʸ"),
                 listOf("4", "5", "6", "×", "!", "DEL"),
                 listOf("1", "2", "3", "−", "π", "e"),
@@ -211,7 +227,7 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                     Row(Modifier.fillMaxWidth().height(48.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         row.forEach { key ->
                             val isEquals = key == "="
-                            val isUtility = key in listOf("AC", "DEL", "÷", "×", "−", "+", "x²", "xʸ")
+                            val isUtility = key in listOf("AC", "DEL", "MC", "MR", "M+", "M-", "MS", "÷", "×", "−", "+", "x²", "xʸ")
                             FilledTonalButton(
                                 onClick = { press(key) },
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
