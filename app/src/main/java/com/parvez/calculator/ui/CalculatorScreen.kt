@@ -87,7 +87,11 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
             "xʸ" -> expression += "^"
             "π" -> expression += "pi"
             "e" -> expression += "e"
-            "sin", "cos", "tan", "asin", "acos", "atan", "ln", "log", "sqrt", "abs", "floor", "ceil", "sinh", "cosh", "tanh" -> expression += "$key("
+            "sin", "cos", "tan", "cot", "sec", "csc", "asin", "acos", "atan", "acot", "asec", "acsc",
+            "ln", "log", "log2", "log10", "logbase", "exp", "sqrt", "cbrt", "root", "abs",
+            "floor", "ceil", "round", "trunc", "sign", "sinh", "cosh", "tanh", "coth", "sech",
+            "csch", "asinh", "acosh", "atanh", "acoth", "asech", "acsch", "mod", "gcd", "lcm",
+            "ncr", "npr", "min", "max", "atan2" -> expression += "$key("
             else -> expression += key
         }
         if (key != "=" && key != "AC" && expression.isNotBlank()) {
@@ -179,13 +183,19 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
             }
 
             val keys = if (scientific) listOf(
-                listOf("sin", "cos", "tan", "ln", "log"),
-                listOf("asin", "acos", "atan", "(", ")", "DEL"),
-                listOf("7", "8", "9", "÷", "√", "x²"),
-                listOf("4", "5", "6", "×", "xʸ", "!"),
+                listOf("sin", "cos", "tan", "cot", "sec", "csc"),
+                listOf("asin", "acos", "atan", "acot", "asec", "acsc"),
+                listOf("sinh", "cosh", "tanh", "coth", "sech", "csch"),
+                listOf("asinh", "acosh", "atanh", "acoth", "asech", "acsch"),
+                listOf("ln", "log", "log2", "log10", "exp", "mod"),
+                listOf("sqrt", "cbrt", "root", "abs", "floor", "ceil"),
+                listOf("round", "trunc", "sign", "gcd", "lcm", "ncr"),
+                listOf("npr", "min", "max", "atan2", "(", ")"),
+                listOf("7", "8", "9", "÷", "x²", "xʸ"),
+                listOf("4", "5", "6", "×", "!", "DEL"),
                 listOf("1", "2", "3", "−", "π", "e"),
                 listOf("0", ".", "%", "+", "Ans", "="),
-                listOf("AC", "sinh", "cosh", "tanh", "abs", "floor")
+                listOf("AC")
             ) else listOf(
                 listOf("7", "8", "9", "÷"),
                 listOf("4", "5", "6", "×"),
@@ -193,9 +203,12 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                 listOf("0", ".", "%", "+"),
                 listOf("AC", "DEL", "(", ")", "=")
             )
-            Column(Modifier.fillMaxWidth().weight(0.66f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                keys.forEach { row ->
-                    Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(0.66f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(keys) { row ->
+                    Row(Modifier.fillMaxWidth().height(48.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         row.forEach { key ->
                             val isEquals = key == "="
                             val isUtility = key in listOf("AC", "DEL", "÷", "×", "−", "+", "x²", "xʸ")
@@ -211,7 +224,7 @@ fun CalculatorScreen(onOpenTools: () -> Unit = {}) {
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                                 ) else ButtonDefaults.filledTonalButtonColors()
                             ) {
-                                Text(key, fontSize = if (key.length > 4) 12.sp else 16.sp, fontWeight = FontWeight.Medium)
+                                Text(key, fontSize = if (key.length > 4) 10.sp else 15.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
