@@ -57,7 +57,12 @@ fun ToolsScreen(onBack: () -> Unit) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Geometry", "Units", "Programmer", "Constants", "Matrix", "Complex", "Date/Time").forEach {
+                listOf("Geometry", "Units", "Programmer", "Constants").forEach {
+                    FilterChip(selected = section == it, onClick = { section = it; result = "" }, label = { Text(it) })
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Matrix", "Complex", "Date/Time").forEach {
                     FilterChip(selected = section == it, onClick = { section = it; result = "" }, label = { Text(it) })
                 }
             }
