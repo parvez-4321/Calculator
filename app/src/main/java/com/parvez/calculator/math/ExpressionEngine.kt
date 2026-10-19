@@ -53,7 +53,6 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                         if (denominator == 0.0) throw ArithmeticException("Cannot divide by zero")
                         value / denominator
                     }
-                    consume('%') -> value % parseUnary()
                     else -> if (startsPrimary()) value * parseUnary() else return value
                 }
             }
@@ -80,12 +79,17 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
             var value = parsePrimary()
             while (true) {
                 skipWhitespace()
-                if (!consume('!')) return value
-                if (value < 0 || value % 1.0 != 0.0 || value > 170)
-                    throw IllegalArgumentException("Factorial requires an integer from 0 to 170")
-                var factorial = 1.0
-                for (n in 2..value.toInt()) factorial *= n
-                value = factorial
+                when {
+                    consume('!') -> {
+                        if (value < 0 || value % 1.0 != 0.0 || value > 170)
+                            throw IllegalArgumentException("Factorial requires an integer from 0 to 170")
+                        var factorial = 1.0
+                        for (n in 2..value.toInt()) factorial *= n
+                        value = factorial
+                    }
+                    consume('%') -> value /= 100.0
+                    else -> return value
+                }
             }
         }
 
@@ -159,6 +163,7 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 "sign" -> sign(one())
                 "min" -> { if (a.size != 2) throw IllegalArgumentException("min requires two arguments"); min(a[0], a[1]) }
                 "max" -> { if (a.size != 2) throw IllegalArgumentException("max requires two arguments"); max(a[0], a[1]) }
+                "mod" -> { if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("mod requires two arguments and a non-zero divisor"); a[0] % a[1] }
                 "pow" -> { if (a.size != 2) throw IllegalArgumentException("pow requires two arguments"); a[0].pow(a[1]) }
                 "root" -> {
                     if (a.size != 2 || a[1] == 0.0) throw IllegalArgumentException("root requires a value and non-zero degree")
@@ -183,11 +188,12 @@ class ExpressionEngine(var angleMode: AngleMode = AngleMode.DEGREES) {
                 else break
             }
             if (!atEnd() && (input[position] == 'e' || input[position] == 'E')) {
-                position++
-                if (!atEnd() && (input[position] == '+' || input[position] == '-')) position++
-                val expStart = position
-                while (!atEnd() && input[position].isDigit()) position++
-                if (expStart == position) throw IllegalArgumentException("Invalid scientific notation")
+                var lookahead = position + 1
+                if (lookahead < input.length && (input[lookahead] == '+' || input[lookahead] == '-')) lookahead++
+                if (lookahead < input.length && input[lookahead].isDigit()) {
+                    position = lookahead
+                    while (!atEnd() && input[position].isDigit()) position++
+                }
             }
             return input.substring(start, position).toDoubleOrNull()
                 ?: throw IllegalArgumentException("Invalid number")
