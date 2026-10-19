@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.parvez.calculator.math.ExpressionEngine
 import com.parvez.calculator.tools.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolsScreen(onBack: () -> Unit) {
     var section by remember { mutableStateOf("Statistics") }
