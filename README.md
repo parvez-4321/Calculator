@@ -22,8 +22,8 @@ Open the repository folder in Android Studio and allow Gradle sync. Run unit tes
 - Degree/radian mode, copy result and typed error messages
 - Room database and DAO for persistent calculation history, search, pinning API, delete and clear
 - DataStore preference storage APIs for theme, angle mode and precision
-- Interactive tool screen for descriptive statistics, quadratic equations, simple interest, circle geometry, length conversion and number-base conversion
-- Pure Kotlin engines for descriptive statistics, matrix arithmetic/determinant/inverse, quadratic equation and bisection solving, finance formulas, length/mass/temperature conversion, programmer bitwise/base operations, geometry, and complex-number arithmetic
+- Interactive tool screen for descriptive statistics, quadratic equations, simple interest, circle geometry, length conversion, number-base conversion, 2×2 matrix determinant/inverse, complex arithmetic, date/time calculations and searchable scientific constants
+- Pure Kotlin engines for descriptive statistics, probability distributions and linear regression, matrix arithmetic/determinant/inverse, quadratic equation and bisection solving, finance formulas, length/mass/temperature conversion, programmer bitwise/base operations, geometry, date/time calculations, scientific constants, and complex-number arithmetic
 - Unit tests for initial parser and mathematical tools
 - GitHub Actions CI with debug APK artifact upload
 
